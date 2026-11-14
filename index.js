@@ -1,4 +1,4 @@
-import makeWASocket, {
+if (!msg.message || msg.key.fromMe) continue;import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState
 } from '@whiskeysockets/baileys';
