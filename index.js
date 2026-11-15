@@ -1,9 +1,8 @@
-if (!msg.message || msg.key.fromMe) continue;import makeWASocket, {
+import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState
 } from '@whiskeysockets/baileys';
 
-import { Boom } from '@hapi/boom';
 import P from 'pino';
 import qrcode from 'qrcode-terminal';
 
@@ -16,35 +15,47 @@ async function startBot() {
     logger: P({ level: 'silent' })
   });
 
+  sock.ev.on('creds.update', saveCreds);
+
   sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
-    if (qr) qrcode.generate(qr, { small: true });
+    if (qr) {
+      console.log('SCAN THIS QR CODE:');
+      qrcode.generate(qr, { small: true });
+    }
 
     if (connection === 'open') {
-      console.log('👑 MR ROYAL BOT CONNECTED!');
+      console.log('👑 MR ROYAL BOT IS CONNECTED!');
     }
 
     if (connection === 'close') {
-      const code = new Boom(lastDisconnect?.error).output?.statusCode;
+      const loggedOut =
+        lastDisconnect?.error?.output?.statusCode ===
+        DisconnectReason.loggedOut;
 
-      if (code !== DisconnectReason.loggedOut) {
-        startBot();
+      if (!loggedOut) {
+        setTimeout(() => startBot(), 5000);
       } else {
-        console.log('WhatsApp logged out. Re-link your account.');
+        console.log('WhatsApp logged out.');
       }
     }
   });
 
-  sock.ev.on('creds.update', saveCreds);
-
-  sock.ev.on('messages.upsert', async ({ messages, type }) => {
-    if (type !== 'notify') return;
-
+  sock.ev.on('messages.upsert', async ({ messages }) => {
     for (const msg of messages) {
-      if (!msg.message || msg.key.fromMe) continue;
+      if (!msg.message) continue;
 
       const jid = msg.key.remoteJid;
 
-      if (!jid || jid === 'status@broadcast') continue;
+      const botNumber = sock.user?.id
+        ?.split(':')[0]
+        .split('@')[0];
+
+      const chatNumber = jid?.split('@')[0];
+
+      // Only accept commands from the owner's self-chat.
+      if (!msg.key.fromMe) continue;
+      if (jid?.endsWith('@g.us')) continue;
+      if (chatNumber !== botNumber) continue;
 
       const text = (
         msg.message.conversation ||
@@ -60,26 +71,29 @@ async function startBot() {
 
 ━━━━━━━━━━━━━━
 
-⚡ *GENERAL COMMANDS*
+⚡ GENERAL COMMANDS
 
-.alive - Check bot status
-.menu - Show commands
+.alive - Bot status
+.menu - Command menu
 .owner - Bot owner
 
 ━━━━━━━━━━━━━━
+
+🔐 OWNER CONTROL ONLY
+
 👑 POWERED BY MR ROYAL`
         });
       }
 
       else if (command === '.alive') {
         await sock.sendMessage(jid, {
-          text: '👑 MR ROYAL BOT IS ONLINE AND ACTIVE!'
+          text: '👑 MR ROYAL BOT IS ONLINE!'
         });
       }
 
       else if (command === '.owner') {
         await sock.sendMessage(jid, {
-          text: '👑 Bot Owner: MR ROYAL'
+          text: '👑 OWNER: MR ROYAL'
         });
       }
     }
