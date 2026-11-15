@@ -41,9 +41,15 @@ async function startBot() {
 
   sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
     if (qr) {
-      console.log('SCAN THIS QR CODE:');
-      qrcode.generate(qr, { small: true });
-    }
+    console.log('WhatsApp QR generated!');
+
+    QRCode.toDataURL(qr)
+        .then(url => {
+            latestQR = url;
+            console.log('QR code ready at /qr');
+        })
+        .catch(err => console.log(err));
+}
 
     if (connection === 'open') {
       console.log('👑 MR ROYAL BOT IS CONNECTED!');
