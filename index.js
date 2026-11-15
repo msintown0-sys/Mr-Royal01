@@ -5,10 +5,28 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 
 import P from 'pino';
-import qrcode from 'qrcode-terminal';
+import QRCode from 'qrcode';
+let latestQR = '';
+
 createServer((req, res) => {
-  res.writeHead(200);
-  res.end('MR ROYAL BOT IS RUNNING');
+    if (req.url === '/qr') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(`
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <meta http-equiv="refresh" content="3">
+            </head>
+            <body style="background:#111;color:white;text-align:center;font-family:Arial;padding:20px">
+                <h2>MR ROYAL BOT</h2>
+                ${latestQR ? `<img src="${latestQR}" style="width:90%;max-width:350px;background:white;padding:10px">` : '<h3>Waiting for QR code...</h3>'}
+            </body>
+            </html>
+        `);
+    } else {
+        res.writeHead(200);
+        res.end('MR ROYAL BOT IS RUNNING. Open /qr to pair WhatsApp.');
+    }
 }).listen(process.env.PORT || 3000, '0.0.0.0');
 async function startBot() {
   const { state, saveCreds } =
