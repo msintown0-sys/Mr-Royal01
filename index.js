@@ -1,3 +1,4 @@
+import { createServer } from 'node:http';
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState
@@ -5,7 +6,10 @@ import makeWASocket, {
 
 import P from 'pino';
 import qrcode from 'qrcode-terminal';
-
+createServer((req, res) => {
+  res.writeHead(200);
+  res.end('MR ROYAL BOT IS RUNNING');
+}).listen(process.env.PORT || 3000, '0.0.0.0');
 async function startBot() {
   const { state, saveCreds } =
     await useMultiFileAuthState('./auth_info_baileys');
@@ -91,13 +95,13 @@ async function startBot() {
         });
       }
 
-      else if (command === '.owner') {
-        await sock.sendMessage(jid, {
-          text: '👑 OWNER: MR ROYAL'
-        });
-      }
+          else if (command === '.owner') {
+      await sock.sendMessage(jid, {
+        text: '👑 OWNER: MR ROYAL'
+      });
     }
-  });
+  }
+});
 }
 
 startBot().catch(console.error);
