@@ -9,24 +9,27 @@ import QRCode from 'qrcode';
 let latestQR = '';
 
 createServer((req, res) => {
-    if (req.url === '/qr') {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(`
-            <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <meta http-equiv="refresh" content="3">
-            </head>
-            <body style="background:#111;color:white;text-align:center;font-family:Arial;padding:20px">
-                <h2>MR ROYAL BOT</h2>
-                ${latestQR ? `<img src="${latestQR}" style="width:90%;max-width:350px;background:white;padding:10px">` : '<h3>Waiting for QR code...</h3>'}
-            </body>
-            </html>
-        `);
-    } else {
-        res.writeHead(200);
-        res.end('MR ROYAL BOT IS RUNNING. Open /qr to pair WhatsApp.');
-    }
+  if (req.url === '/qr') {
+    res.writeHead(200, {
+      'Content-Type': 'text/html'
+    });
+
+    res.end(`
+      <html>
+        <body style="background:#111;color:white;text-align:center;padding:30px">
+          <h2>MR ROYAL BOT</h2>
+          ${latestQR
+            ? `<img src="${latestQR}" style="width:300px;background:white;padding:10px">`
+            : '<h3>Waiting for WhatsApp QR...</h3>'}
+        </body>
+      </html>
+    `);
+  } else {
+    res.writeHead(200, {
+      'Content-Type': 'text/plain'
+    });
+    res.end('MR ROYAL BOT IS RUNNING');
+  }
 }).listen(process.env.PORT || 3000, '0.0.0.0');
 async function startBot() {
   const { state, saveCreds } =
