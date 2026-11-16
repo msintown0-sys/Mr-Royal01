@@ -19,8 +19,8 @@ createServer((req, res) => {
         <body style="background:#111;color:white;text-align:center;padding:30px">
           <h2>MR ROYAL BOT</h2>
           ${latestQR
-            ? `<img src="${latestQR}" style="width:300px;background:white;padding:10px">`
-            : '<h3>Waiting for WhatsApp QR...</h3>'}
+  ? `<img src="${latestQR}" style="width:300px;background:white;padding:10px">`
+  : '<h3>Waiting for WhatsApp QR...</h3>'}
         </body>
       </html>
     `);
